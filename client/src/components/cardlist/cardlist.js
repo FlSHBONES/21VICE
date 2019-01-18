@@ -8,7 +8,7 @@ const CardList = props => {
   };
 
   return (
-    <div style={{ height: 275  }} className='col'>
+    <div className='col'>
       <div className="mid">
         <span className="numDisplay">
           {props.cardDisplay +
@@ -19,7 +19,7 @@ const CardList = props => {
       <div className="mid">
         {props.cards.map(card => (
           // eslint-disable-next-line
-          <img key={card.code} src={card.images.png} height="200px" />
+          <img key={card.code} src={card.images.png}/>
         ))}
       </div>
     </div>

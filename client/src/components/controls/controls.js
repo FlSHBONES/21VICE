@@ -57,7 +57,7 @@ const Controls = props => {
             25
           </button>
         </span>
-        <span style={{ paddingLeft: 40 }}>
+        <span>
           <button
             className={"btn" + isDealDisabled() + " " + buttonVisible(true)}
             onClick={() => props.dealClicked()}
@@ -83,7 +83,7 @@ const Controls = props => {
             Clear
           </button>
         </span>
-        <div style={{ marginTop: 30 }}>
+        <div>
           <span className="totalDisplay">Chips:{props.chips}</span>
         </div>
       </div>
