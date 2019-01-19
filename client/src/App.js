@@ -8,6 +8,8 @@ import "./App.css";
 import Table from './components/table';
 import PlayerScreen from './components/playerScreen';
 import { set } from 'mongoose';
+import TitleBar from "./components/titlebar";
+import SideBar from "./components/sidebar";
 
 class App extends Component {
 
@@ -781,6 +783,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+              <TitleBar />
+        <SideBar />
+        <div className="game-area">
         {/* This should be in the homepage/landing page as a modal */}
         <div className='login'>
           <NameForm
@@ -840,7 +845,7 @@ class App extends Component {
           />
         }
 
-
+</div>
       </div>
     );
   }
