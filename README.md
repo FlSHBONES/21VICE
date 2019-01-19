@@ -1,2 +1,0 @@
-# 21VICE
-BlackJack....Vice!
