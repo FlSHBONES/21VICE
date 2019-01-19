@@ -6,6 +6,7 @@ import GameMessage from '../gamemessage';
 
 // Using the datalist element we can create autofill suggestions based on the props.breeds array
 function PlayerScreen(props) {
+
     return (
         <div className="container playerScreen">
             <h1>THIS IS THE PLAYERS SCREEN!!!!!!!!!!!!!</h1>
@@ -17,17 +18,18 @@ function PlayerScreen(props) {
                 )}
 
             <CardList
-                cardDisplay="Player:"
+                cardDisplay={`${props.playerName}: `}
                 cardTotal={props.playerTotal}
                 cardTotalAlt={props.playerTotalAlt}
                 cards={props.playerCards}
             />
+
             <Controls
                 bet={props.bet}
                 chips={props.chips}
                 isPlaying={props.isPlaying}
                 makeBet={props.makeBet}
-                dealClicked={props.dealClicked}
+                readyClicked={props.readyClicked}
                 hitClicked={props.hitClicked}
                 stayClicked={props.stayClicked}
                 clearBet={props.clearBet}

@@ -9,7 +9,7 @@ function Table(props) {
         <div className='table'>
             <h1>THIS IS THE TABLE SCREEN!!!!!</h1>
             <CardList
-                cardDisplay="Dealer:"
+                cardDisplay="Dealer: "
                 cardTotal={props.dealerTotal}
                 cardTotalAlt={props.dealerTotalAlt}
                 cards={props.dealerCards}

@@ -60,9 +60,9 @@ const Controls = props => {
         <span style={{ paddingLeft: 40 }}>
           <button
             className={"btn" + isDealDisabled() + " " + buttonVisible(true)}
-            onClick={() => props.dealClicked()}
+            onClick={() => props.readyClicked()}
           >
-            Deal
+            Ready
           </button>
           <button
             className={"btn " + buttonVisible(false)}
