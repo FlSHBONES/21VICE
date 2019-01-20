@@ -9,7 +9,7 @@ const Controls = props => {
     return props.isPlaying ? "Disabled" : "";
   };
 
-  const isDealDisabled = () => {
+  const isReadyDisabled = () => {
     return props.bet === 0 ? "Disabled" : "";
   };
 
@@ -59,7 +59,7 @@ const Controls = props => {
         </span>
         <span style={{ paddingLeft: 40 }}>
           <button
-            className={"btn" + isDealDisabled() + " " + buttonVisible(true)}
+            className={"btn" + isReadyDisabled() + " " + buttonVisible(true)}
             onClick={() => props.readyClicked()}
           >
             Ready

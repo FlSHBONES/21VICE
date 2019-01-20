@@ -439,6 +439,7 @@ console.log('tableid: '+ tableID);
         players[i].playerTotal = 0;
         players[i].playerTotalAlt = 0;
         players[i].hand = [];
+        players[i].isReady = isReady;
       }
 
       console.log('data reset');

@@ -5,6 +5,7 @@ import NameForm from './components/NameForm';
 import "./App.css";
 import Table from './components/table';
 import PlayerScreen from './components/playerScreen';
+import Roulette from './components/roulette';
 
 
 class App extends Component {
@@ -401,14 +402,12 @@ class App extends Component {
   // Ready Check to start the game 
   readyClicked = () => {
     console.log(`${this.state.playerName} is ready!!!`)
-    console.log('Socketid: '+ this.socket.id);
+    console.log('Socketid: ' + this.socket.id);
     if (this.state.bet !== 0) {
       this.socket.emit('Player is ready', {
         playerID: this.socket.id,
         ready: 1,
         bet: this.state.bet
-      }, ()=>{
-        console.log("socketid: "+this.state.playerID)
       });
     } return;
   }
@@ -441,8 +440,22 @@ class App extends Component {
   };
 
 
+  handleOnComplete = (value) => {
+    console.log(value);
+  };
+
+
 
   render() {
+
+    const options = [
+      "+1",
+      "+2",
+      "+3",
+      "+4",
+      "+5",
+    ];
+
     return (
       <div className="App">
         {/* This should be in the homepage/landing page as a modal */}
@@ -496,6 +509,7 @@ class App extends Component {
           />
         }
 
+        <Roulette options={options} baseSize={80} onComplete={this.handleOnComplete} />
 
       </div>
     );
