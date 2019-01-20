@@ -31,7 +31,7 @@ function Table(props) {
             </div>
 
             {props.gameMsg ? (
-                <GameMessage msg={props.gameMsg} resetClicked={props.resetGame} />
+                <GameMessage msg={props.gameMsg} />
             ) : (
                     false
                 )}

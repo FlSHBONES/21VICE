@@ -12,7 +12,7 @@ function PlayerScreen(props) {
             <h1>THIS IS THE PLAYERS SCREEN!!!!!!!!!!!!!</h1>
 
             {props.gameMsg ? (
-                <GameMessage msg={props.gameMsg} resetClicked={props.resetGame} />
+                <GameMessage msg={props.gameMsg} />
             ) : (
                     false
                 )}

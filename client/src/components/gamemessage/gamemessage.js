@@ -4,7 +4,7 @@ import './gamemessage.css';
 const GameMessage = props => {
   return (
     <div className="backdrop">
-      <p onClick={() => props.resetClicked()}>{props.msg}</p>
+      <p>{props.msg}</p>
     </div>
   );
 };
