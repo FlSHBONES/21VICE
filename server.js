@@ -45,14 +45,12 @@ let dealerTotalAlt = 0;
 let tableID = '';
 let status = '';
 let stay = 0;
-let round = 1;
+let round = 0;
 
 // FUNCTIONS!!!!!!
-function shuffle(a) {
+shuffle = (a) => {
   let k,
     t,
-    // eslint-disable-next-line
-    //j,
     i = a.length,
     rand = Math.random;
 
@@ -106,9 +104,9 @@ checkForBust = (t1, t2) => {
   if (min > 21) {
     status = "Over 21 - You Lose!!!";
   }
-
 };
 
+// Check if dealer bust agianst player
 checkDealerStatus = (dealerCards, playerTotal) => {
   let t1,
     t2,
@@ -117,7 +115,7 @@ checkDealerStatus = (dealerCards, playerTotal) => {
   t1 = this.calcCardTotal(dealerCards, false);
   t2 = this.calcCardTotal(dealerCards, true);
 
-  if (Math.min(t1, t2) > 21) {
+  if (Math.min(t1, t2) > 21 && playerTotal <= 21) {
     status = "You Win!!!";
   } else if (
     (t1 <= 21 && t1 === playerTotal) ||
@@ -129,12 +127,14 @@ checkDealerStatus = (dealerCards, playerTotal) => {
     (t2 <= 21 && t2 > playerTotal)
   ) {
     status = "Dealer wins!!!";
+  } else if (
+    (t1 <= 21 && t1 < playerTotal) &&
+    (t2 <= 21 && t2 < playerTotal) && (playerTotal <= 21)) {
+    status = "You Win!!!";
   }
 
   return status;
 };
-
-
 
 
 
@@ -195,15 +195,7 @@ io.on('connection', socket => {
   // ----------------------- GAME LOGIC -------------------------//
   // Player is ready
   socket.on('Player is ready', data => {
-    console.log('OGready: ' + ready)
-    console.log(typeof ready)
-    console.log('bet: ' + data.bet)
     ready += data.ready;
-    console.log('NEWready: ' + ready)
-    console.log('players#: ' + players.length)
-
-    console.log(typeof data.ready)
-    console.log(typeof players.length)
 
     for (var i = 0; i < players.length; i++) {
       if (players[i].socketId === data.playerID) {
@@ -211,8 +203,11 @@ io.on('connection', socket => {
       }
     }
 
+    // READY CHECK
     if (ready === players.length) {
-      console.log("SHOOULD BE WORKING")
+      console.log("SHOULD BE WORKING")
+
+      round += 1;
 
       deck = checkDeck(deck);
 
@@ -230,14 +225,14 @@ io.on('connection', socket => {
         dealerCards: dealerCards
       })
 
+console.log('tableid: '+ tableID);
+
       // Tells the table only
       io.to(tableID).emit('Table Cards', {
         playersInGame: players,
         dealerCards: dealerCards
       })
-
     }
-
   })
 
   // Calculating Cards for each socket
@@ -298,10 +293,14 @@ io.on('connection', socket => {
   socket.on('Check for bust', data => {
     console.log('LOKKK AY MEEEEE')
     console.log(players)
+
     for (var i = 0; i < players.length; i++) {
       if (players[i].socketId === data) {
         checkForBust(players[i].playerTotal, players[i].playerTotalAlt);
         players[i].gameMsg = status;
+        if (players[i].gameMsg === 'Over 21 - You Lose!!!') {
+          players[i].chips = players[i].chips - players[i].bet;
+        }
       }
     }
 
@@ -316,6 +315,8 @@ io.on('connection', socket => {
     io.to(tableID).emit('Check table for busting', {
       playersInGame: players
     })
+
+    status = '';
   })
 
   // Check bust after stay
@@ -335,6 +336,7 @@ io.on('connection', socket => {
     console.log('Stay: ' + stay)
     console.log('Players Left: ' + playersLeft)
 
+    // TWO ACES DONES'T WORK IT IS ALWAYS 2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 
     if (stay === playersLeft) {
       let newDealerTotal = Math.max(dealerTotal, dealerTotalAlt);
       while (newDealerTotal < 17) {
@@ -347,16 +349,12 @@ io.on('connection', socket => {
         if (dealerTotalAlt > 21) {
           newDealerTotal = Math.min(dealerTotal, dealerTotalAlt);
         }
-        console.log(newDealerTotal) // both Aces doesnt work
+        console.log(newDealerTotal)
       }
 
       for (var i = 0; i < players.length; i++) {
 
         let newPlayerTotal = Math.max(players[i].playerTotal, players[i].playerTotalAlt)
-
-        // if(players[i].playerTotal && players[i].playerTotalAlt < 21){
-
-        // }
 
         if (players[i].playerTotalAlt > 21) {
           newPlayerTotal = Math.min(players[i].playerTotal, players[i].playerTotalAlt)
@@ -364,21 +362,25 @@ io.on('connection', socket => {
 
         if (Math.min(dealerTotal, dealerTotalAlt) > 21 && newPlayerTotal <= 21) {
           players[i].gameMsg = 'You Win!!!';
+          players[i].chips = players[i].chips + (players[i].bet * 2);
         } else if (
           (dealerTotal <= 21 && dealerTotal === newPlayerTotal) ||
           (dealerTotalAlt <= 21 && dealerTotalAlt === newPlayerTotal)
         ) {
           players[i].gameMsg = 'Tie';
+          players[i].chips = players[i].chips + players[i].bet;
         } else if (
           (dealerTotal <= 21 && dealerTotal > newPlayerTotal) ||
           (dealerTotalAlt <= 21 && dealerTotalAlt > newPlayerTotal)
         ) {
           players[i].gameMsg = 'Dealer wins!!!';
+          players[i].chips = players[i].chips - players[i].bet;
         } else if (
           (dealerTotal <= 21 && dealerTotal < newPlayerTotal) &&
-          (dealerTotalAlt <= 21 && dealerTotalAlt < newPlayerTotal) && (newPlayerTotal < 21)
+          (dealerTotalAlt <= 21 && dealerTotalAlt < newPlayerTotal) && (newPlayerTotal <= 21)
         ) {
           players[i].gameMsg = 'You Win!!!';
+          players[i].chips = players[i].chips + (players[i].bet * 2);
         }
 
       }
@@ -406,227 +408,126 @@ io.on('connection', socket => {
         dealerTotalAlt: dealerTotalAlt,
         playersInGame: players
       })
-
     }
-
-    // // When all players stay
-    // if (stay === players.length) {
-
-    //   let newDealerTotal = Math.max(dealerTotal, dealerTotalAlt);
-
-    //   for (var i = 0; i < players.length; i++) {
-
-    //     let newPlayerTotal = Math.max(players[i].playerTotal, players[i].playerTotalAlt)
-
-    //     while (newDealerTotal < 17) {
-    //       drawCards(deck, dealerCards, 1);
-    //       dealerTotal = calcCardTotal(dealerCards, false);
-    //       dealerTotalAlt = calcCardTotal(dealerCards, true);
-
-    //       if (Math.min(dealerTotal, dealerTotalAlt) > 21) {
-    //         players[i].gameMsg = 'You Win!!!';
-    //       } else if (
-    //         (dealerTotal <= 21 && dealerTotal === newPlayerTotal) ||
-    //         (dealerTotalAlt <= 21 && dealerTotalAlt === newPlayerTotal)
-    //       ) {
-    //         players[i].gameMsg = "Tie";
-    //       } else if (
-    //         (dealerTotal <= 21 && dealerTotal > newPlayerTotal) ||
-    //         (dealerTotalAlt <= 21 && dealerTotalAlt > newPlayerTotal)
-    //       ) {
-    //         players[i].gameMsg = "Dealer wins!!!";
-    //       }
-
-    //       newDealerTotal = Math.max(dealerTotal, dealerTotalAlt);
-    //       console.log(newDealerTotal) // both Aces doesnt work
-
-
-    //     }
-    //   }
-    //   console.log('PLAYERSSSSSSS UPDATINGGGG')
-    //   console.log(players)
-
-    //   // Tells everyone in room
-    //   socket.emit('Check bust when player stays', {
-    //     playersInGame: players
-    //   })
-
-    //   // Tells the table only
-    //   io.to(tableID).emit('Check table bust when player stays', {
-    //     playersInGame: players
-    //   })
-
-    // }
-
-    // let status = '';
-
-    // if (stay === players.length) {
-
-    //   let maxArry = []
-
-    //   for (var i = 0; i < players.length; i++) {
-
-    //     let maxPlayerTotal = Math.max(players[i].playerTotal, players[i].playerTotalAlt);
-
-    //     if( maxPlayerTotal > 21) {
-    //       maxPlayerTotal =  Math.min(players[i].playerTotal, players[i].playerTotalAlt);
-    //     }
-
-    //     maxArry.push(maxPlayerTotal)
-    //   }
-
-    //   console.log(maxArry);
-
-    //   let finalMax = Math.max(maxArry);
-
-    //   status = checkDealerStatus(dealerCards, finalMax);
-
-    //   console.log(status);
-
-    //   if (status === "") {
-    //     do {
-    //       drawCards(deck, dealerCards, 1);
-    //       status = checkDealerStatus(dealerCards, finalMax);
-
-    //     } while (status === "");
-    //   }
-
-    //   //add statment that for everyone
-    // }
-
-
   })
-
 
   // Reset Game (Coded for one player and if u win)
   socket.on('Reset Game', data => {
+    console.log(data);
 
-    round += data.round;
-
-
-
-    ready = 0;
-    deck = [];
-    dealerCards = [];
-    dealerTotal = 0;
-    dealerTotalAlt = 0;
-    stay = 0;
+    let checkingStatus = 0;
 
     for (var i = 0; i < players.length; i++) {
-      players[i].gameMsg = '';
-      players[i].bet = 0;
-      players[i].chips = data.playersInGame.chips;
-      players[i].playerTotal = 0;
-      players[i].playerTotalAlt = 0;
-      players[i].hand = [];
+      if (players[i].gameMsg === '') {
+        checkingStatus += 1
+      };
     }
 
-    console.log('data reset');
-    console.log(players);
+    if (checkingStatus === 0) {
 
-    if (round < 5) {
-      io.emit('Next Round', players)
-
-      io.to(tableID).emit('Next Round Table', players)
-    }
-    else {
+      // The reset
+      ready = 0;
+      deck = [];
+      dealerCards = [];
+      dealerTotal = 0;
+      dealerTotalAlt = 0;
+      stay = 0;
 
       for (var i = 0; i < players.length; i++) {
-        players[i].gameMsg = 'GAME OVER';
+        players[i].gameMsg = '';
         players[i].bet = 0;
-        players[i].chips = data.playersInGame.chips
+        players[i].playerTotal = 0;
+        players[i].playerTotalAlt = 0;
+        players[i].hand = [];
+        players[i].isReady = isReady;
       }
 
-      socket.emit('GAME OVER', players)
+      console.log('data reset');
+      console.log(players);
+
+      // I HAVE IT END AT THREE ROUNDS FOR TESTING CAN BE CHANGED LATER
+      if (round < 3) {
+
+        // INPUT MUSIC HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // MAYBE HAVE MUSIC PLAYED BY STATE
+
+        // Delay for gameMsg and music
+        delayForEffect = () => {
+          setTimeout(() => {
+
+            console.log('SURIPRSE MOTHER FUCKA!!!!!!')
+            console.log('Round: ' + round)
+
+            io.emit('Next Round', players)
+
+            io.to(tableID).emit('Next Round Table', players)
+
+          }, 3000);
+        }
+
+        delayForEffect();
+
+      }
+      else {
+
+        console.log('End Of Game!!!!!!!!!!')
+
+        // CODE FOR MULTIPLE WINNERS!!!!!!!!!!!!!!!!!!
+        let topPlayerID;
+        let topPlayer;
+        let topPlayerValue;
+
+        topPlayerValue = Math.max.apply(Math, players.map(function (player) { return player.chips; }))
+        console.log('Top Player Value: ' + topPlayerValue)
+
+        for (var i = 0; i < players.length; i++) {
+
+          players[i].bet = 0;
+
+          if (players[i].chips === topPlayerValue) {
+            topPlayerID = players[i].socketId;
+            topPlayer = players[i].playerName;
+          }
+          players[i].gameMsg = `GAME OVER \n WINNER: ${topPlayer} \n CHIPS: ${topPlayerValue}`;
+        }
+
+        console.log(topPlayer);
+
+        // INPUT MUSIC HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // MAYBE HAVE MUSIC PLAYED BY STATE
+
+        // INPUT MONGO-DB CODE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // USE topPlayerID, topPlayer, topPlayerValue
+
+        socket.emit('GAME OVER', players)
+
+        delayForEffect2 = () => {
+          setTimeout(() => {
+
+            console.log('RESET THE WHOLE GAME')
+
+            ready = 0;
+            deck = [];
+            dealerCards = [];
+            dealerTotal = 0;
+            dealerTotalAlt = 0;
+            status = '';
+            stay = 0;
+            round = 0;
+            player = {};
+            players = [];
+
+            io.emit('New Game', 'YOU SHOULD SEE ME')
+
+            io.to(tableID).emit('New Game Table', 'YOU SHOULD SEE ME TOO')
+
+          }, 3000);
+        }
+
+        delayForEffect2();
+      }
     }
-
-
-
-
   })
-
-  // // Confirm and display hit
-  // socket.on('Confirm Hit', data => {
-  //   io.to('Room 1').emit('Confirm Hit 2', data)
-  // })
-
-  // // Show Calc for player
-  // socket.on('Show Calc', data => {
-  //   io.to('Room 1').emit('Display Calc', data)
-  // })
-
-
-  // // Deal BTN
-  // socket.on('Initial Hand', data => {
-  //   console.log('Inital Hand: ' + data);
-  //   console.log('Players Array: ' + players)
-
-  //   players.map(player => {
-  //     if (player.socketId === data.playerID) {
-  //       socket.emit('Initial Hand 2', {
-  //         hand: data.playerCards
-  //       })
-  //       console.log(player);
-
-  //       player.hand = data.playerCards;
-
-  //       io.to('Room 1').emit('Dealers Hand', {
-  //         socketId: data.playerID,
-  //         playerName: player.playerName,
-  //         playerInGameHand: player.hand,
-  //         score: player.score,
-  //         dealerCards: data.dealerCards
-  //       })
-  //     }
-  //   })
-  // })
-
-  // // Hit BTN
-  // socket.on('Hit Clicked', data => {
-  //   console.log(data);
-
-  //   players.map(player => {
-  //     if (player.socketId === data.playerID) {
-  //       socket.emit('Add Hit Card', {
-  //         hand: data.playerCards,
-  //         playerID: data.playerID
-  //       })
-  //       console.log(player);
-
-  //       player.hand = data.playerCards;
-
-  //       io.to('Room 1').emit('New Hit Hand', {
-  //         socketId: data.playerID,
-  //         playerName: player.playerName,
-  //         playerInGameHand: player.hand,
-  //         score: player.score
-  //       })
-  //     }
-  //   })
-  // })
-
-  // // When player busts
-  // socket.on('Player has busted', data => {
-  //   console.log('Player has busted!!!!!!')
-  //   console.log(data);
-  //   io.to('Room 1').emit('A player has bust', data)
-  // })
-
-  // // After STAY is clicked
-  // socket.on('Adding to dealer', data => {
-  //   console.log('ADDING TO DEALER')
-  //   console.log(data);
-  //   io.to('Room 1').emit('Dealers New Hand', {
-  //     dealerCards: data.dealerCards,
-  //     status: data.status,
-  //     playerID: data.playerID
-  //   })
-  // })
-
-  // // Game over
-  // socket.on('GAME IS OVER', data => {
-  //   io.to('Room 1').emit('GAME OVER', data)
-  // })
 
   socket.on('disconnect', function () {
     console.log('SocketID: ' + socket.id + ' disconnected');
