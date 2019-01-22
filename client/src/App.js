@@ -770,78 +770,83 @@ class App extends Component {
 
 
 
-
-
-
   render() {
     return (
       <div className="App">
         <TitleBar />
-        <SideBar 
-          playerData={this.state.playersInGame}
-          numPlayers={this.state.numberOfPlayers}
-        />
-        <div className="game-area">
-        {/* This should be in the homepage/landing page as a modal */}
-        <div className='login'>
-          <NameForm
-            value={this.state.playerName}
-            handleInputChange={this.handleInputChange}
-            joinBTN={this.joinBTN}
-          />
-
-          <div>
-            Welcome: {this.state.displayPlayerName}
-          </div>
-
-          <div>
-            Number of Players: {this.state.numberOfPlayers}
-          </div>
-        </div>
-
         {/* Ternary operator to show either hand or table */}
         {this.state.tableStatus ?
-          <Table
-            playersInGame={this.state.playersInGame}
-
-            dealerTotal={this.state.dealerTotal}
-            dealerTotalAlt={this.state.dealerTotalAlt}
-            dealerCards={this.state.dealerCards}
-            // playerTotal={this.state.playerTotal}
-            // playerTotalAlt={this.state.playerTotalAlt}
-            // playerCards={this.state.playerCards}
-            gameMsg={this.state.gameMsg}
-            resetGame={this.resetGame}
-          />
+          <div>
+            <SideBar
+              playerData={this.state.playersInGame}
+              numPlayers={this.state.numberOfPlayers}
+            />
+            <div className="game-area">
+              <Table
+                playersInGame={this.state.playersInGame}
+                numPlayers={this.state.playersInGame.length}
+                dealerTotal={this.state.dealerTotal}
+                dealerTotalAlt={this.state.dealerTotalAlt}
+                dealerCards={this.state.dealerCards}
+                // playerTotal={this.state.playerTotal}
+                // playerTotalAlt={this.state.playerTotalAlt}
+                // playerCards={this.state.playerCards}
+                gameMsg={this.state.gameMsg}
+                resetGame={this.resetGame}
+              />
+            </div>
+          </div>
           :
-          <PlayerScreen
-            // playersInGame={this.state.playersInGame}
-            socketId={this.state.playerID}
+          <div className="height-100">
+            {/* Ternary operator to show either hand or table */}
+            {this.state.displayPlayerName.length>0?
+            <div className="height-100">
+              <PlayerScreen
+                // playersInGame={this.state.playersInGame}
+                socketId={this.state.playerID}
 
-            // For Game Message
-            gameMsg={this.state.gameMsg}
-            resetGame={this.resetGame}
+                // For Game Message
+                gameMsg={this.state.gameMsg}
+                resetGame={this.resetGame}
 
-            //For Cardlist
-            playerName={this.state.playerName}
-            playerTotal={this.state.playerTotal}
-            playerTotalAlt={this.state.playerTotalAlt}
-            playerCards={this.state.playerCards}
+                //For Cardlist
+                playerName={this.state.playerName}
+                playerTotal={this.state.playerTotal}
+                playerTotalAlt={this.state.playerTotalAlt}
+                playerCards={this.state.playerCards}
 
-            //For Controls
-            bet={this.state.bet}
-            chips={this.state.chips}
-            isPlaying={this.state.isPlaying}
-            makeBet={this.makeBet}
-            readyClicked={this.readyClicked}
-            hitClicked={this.hitClicked}
-            stayClicked={this.stayClicked}
-            clearBet={this.clearBet}
-            playerID={this.state.playerID}
-          />
+                //For Controls
+                bet={this.state.bet}
+                chips={this.state.chips}
+                isPlaying={this.state.isPlaying}
+                makeBet={this.makeBet}
+                readyClicked={this.readyClicked}
+                hitClicked={this.hitClicked}
+                stayClicked={this.stayClicked}
+                clearBet={this.clearBet}
+                playerID={this.state.playerID}
+              />
+            </div>
+            :
+            <div>
+              <div className='login'>
+                <NameForm
+                  value={this.state.playerName}
+                  handleInputChange={this.handleInputChange}
+                  joinBTN={this.joinBTN}
+                />
+                <div>
+                  Welcome: {this.state.displayPlayerName}
+                </div>
+                <div>
+                  Number of Players: {this.state.numberOfPlayers}
+                </div>
+              </div>
+            </div>
+            }
+
+          </div>
         }
-
-</div>
       </div>
     );
   }
