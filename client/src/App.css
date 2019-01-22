@@ -200,7 +200,28 @@ button.betDisabled {
   width: 100%;
 }
 
-.player-box {
+.player-box1 {
+  height: 100%;
+  color: white;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.player-box2 {
+  height: 50%;
+  color: white;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.player-box3 {
+  height: 33.3%;
+  color: white;
+  text-align: center;
+  padding: 0 !important;
+}
+
+.player-box4 {
   height: 25%;
   color: white;
   text-align: center;
@@ -228,20 +249,20 @@ button.betDisabled {
   font-size: 12px;
 }
 
-.player1 {
+.player0 {
   background-color: #373b84;
 }
 
-.player2 {
+.player1 {
   background-color: #1593ac;
 }
 
-.player3 {
+.player2 {
 
   background-color: #df773e;
 }
 
-.player4 {
+.player3 {
   background-color: #e21887;
 }
 

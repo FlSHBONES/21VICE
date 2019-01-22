@@ -16,6 +16,7 @@ class App extends Component {
   state = {
     playerID: "",
     playerName: "",
+    playerNumber: "",
     displayPlayerName: "",
     numberOfPlayers: 0,
     deck: [],
@@ -772,19 +773,14 @@ class App extends Component {
 
 
 
-
-
-
-
-
-
-
-
   render() {
     return (
       <div className="App">
-              <TitleBar />
-        <SideBar />
+        <TitleBar />
+        <SideBar 
+          playerData={this.state.playersInGame}
+          numPlayers={this.state.numberOfPlayers}
+        />
         <div className="game-area">
         {/* This should be in the homepage/landing page as a modal */}
         <div className='login'>
